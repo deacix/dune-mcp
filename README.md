@@ -10,42 +10,81 @@ A Model Context Protocol (MCP) server that exposes [Dune Analytics API](https://
 - **Comprehensive error handling** with clear messages
 - **89% test coverage** with 95 unit tests
 
-## Quick Start
+## Quick Start (No Installation)
 
-### Prerequisites
-
-- Python 3.10+
-- [Dune API key](https://dune.com/settings/api)
-
-### Installation
-
-```bash
-# Clone and install
-cd dune/mcp
-pip install -e .
-
-# Set API key
-export DUNE_API_KEY="your-api-key"
-
-# Or create .env file
-echo "DUNE_API_KEY=your-api-key" > .env
-```
-
-### Running the Server
-
-```bash
-# Via entry point
-dune-mcp
-
-# Or directly
-python server.py
-```
-
-## MCP Client Configuration
+Run directly from GitHub without cloning using `uvx`:
 
 ### Claude Desktop
 
 Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+
+```json
+{
+  "mcpServers": {
+    "dune": {
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/deacix/dune-mcp", "dune-mcp"],
+      "env": {
+        "DUNE_API_KEY": "your-api-key"
+      }
+    }
+  }
+}
+```
+
+### Cursor
+
+Add to `.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "dune": {
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/deacix/dune-mcp", "dune-mcp"],
+      "env": {
+        "DUNE_API_KEY": "your-api-key"
+      }
+    }
+  }
+}
+```
+
+That's it! The MCP server will be automatically downloaded and run when your AI assistant starts.
+
+> **Note:** Requires [uv](https://docs.astral.sh/uv/getting-started/installation/) to be installed: `curl -LsSf https://astral.sh/uv/install.sh | sh`
+
+## Installation (Alternative)
+
+If you prefer to install locally:
+
+```bash
+# Install from GitHub
+pip install git+https://github.com/deacix/dune-mcp
+
+# Or clone and install
+git clone https://github.com/deacix/dune-mcp
+cd dune-mcp
+pip install -e .
+```
+
+Set your API key:
+
+```bash
+export DUNE_API_KEY="your-api-key"
+```
+
+Run the server:
+
+```bash
+dune-mcp
+```
+
+## MCP Client Configuration (Local Install)
+
+If you installed locally, use simpler config:
+
+### Claude Desktop
 
 ```json
 {
@@ -62,29 +101,11 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
 
 ### Cursor
 
-Add to Cursor MCP settings (`.cursor/mcp.json` or global settings):
-
 ```json
 {
   "mcpServers": {
     "dune": {
       "command": "dune-mcp",
-      "env": {
-        "DUNE_API_KEY": "your-api-key"
-      }
-    }
-  }
-}
-```
-
-Or with uv (recommended):
-
-```json
-{
-  "mcpServers": {
-    "dune": {
-      "command": "uv",
-      "args": ["run", "--directory", "/path/to/dune/mcp", "dune-mcp"],
       "env": {
         "DUNE_API_KEY": "your-api-key"
       }
