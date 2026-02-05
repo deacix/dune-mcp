@@ -1,0 +1,54 @@
+name: PR Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate PR title (conventional commits)
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PATTERN="^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?: .+"
+          if [[ ! "$PR_TITLE" =~ $PATTERN ]]; then
+            echo "❌ PR title must follow conventional commits format:"
+            echo "   feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert(scope): description"
+            echo ""
+            echo "   Examples:"
+            echo "     feat: add new query execution tool"
+            echo "     fix(client): handle timeout errors"
+            echo "     docs: update README with examples"
+            exit 1
+          fi
+          echo "✅ PR title follows conventional commits format"
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv pip install --system -e ".[dev]"
+
+      - name: Run linter
+        run: ruff check .
+
+      - name: Check formatting
+        run: ruff format --check .
+
+      - name: Run tests
+        run: pytest tests/ -v --cov=. --cov-report=term-missing --cov-fail-under=80
